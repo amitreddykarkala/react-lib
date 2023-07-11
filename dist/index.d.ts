@@ -25,4 +25,4 @@ interface ButtonProps {
 
 declare const Button: ({ primary, size, backgroundColor, label, ...props }: ButtonProps) => React.JSX.Element;
 
-export { Button };
+export { Button as DozeeButton };
