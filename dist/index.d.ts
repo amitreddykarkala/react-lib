@@ -62,4 +62,4 @@ interface SelectProps {
 
 declare const DozeeSelect: ({ placeHolder, options, isMulti, isSearchable, _default, onChange }: SelectProps) => React.JSX.Element;
 
-export { Button as DozeeButton, DozeeSelect };
+export { Button as DozeeButton, DozeeSelect, SelectableOptions };
