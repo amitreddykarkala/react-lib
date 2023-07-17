@@ -25,11 +25,11 @@ const DozeeSelect = ({
   options,
   isMulti,
   isSearchable,
+  _default,
   onChange
 }: SelectProps) => {
   const [showMenu, setShowMenu] = useState<boolean>(false);
-  const [selectedValue, setSelectedValue] = useState<null | SelectableOptions>(null);
-  // const [selectedValue, setSelectedValue] = useState<null | SelectableOptions>(isMulti ? [] : null);
+  const [selectedValue, setSelectedValue] = useState<null | SelectableOptions | SelectableOptions[]>(isMulti ? [] : null);
   const [searchValue, setSearchValue] = useState<string>("");
   const searchRef = useRef<null | HTMLInputElement>(null);
   const inputRef = useRef<null | HTMLInputElement>(null);
@@ -59,65 +59,74 @@ const DozeeSelect = ({
 
 
   const getDisplay = () => {
-    if (!selectedValue ) {
+    if (!selectedValue  || (Array.isArray(selectedValue) && selectedValue.length === 0)) {
       return placeHolder;
+    } 
+    if (isMulti && Array.isArray(selectedValue)) {
+      return (
+        <div className="dropdown-tags">
+          {selectedValue.map((option) => (
+            <div key={option.value} className="dropdown-tag-item">
+              {option.label}
+              <span
+                onClick={(e) => onTagRemove(e, option)}
+                className="dropdown-tag-close"
+              >
+                <CloseIcon />
+              </span>
+            </div>
+          ))}
+        </div>
+      );
     }
-    // if (isMulti) {
-    //   return (
-    //     <div className="dropdown-tags">
-    //       {selectedValue.map((option) => (
-    //         <div key={option.value} className="dropdown-tag-item">
-    //           {option.label}
-    //           <span
-    //             onClick={(e) => onTagRemove(e, option)}
-    //             className="dropdown-tag-close"
-    //           >
-    //             <CloseIcon />
-    //           </span>
-    //         </div>
-    //       ))}
-    //     </div>
-    //   );
-    // }
-    return selectedValue.label;
+    if (!isMulti && !Array.isArray(selectedValue)) {
+      return selectedValue.label;
+    }
+    return placeHolder;
+
   };
 
-  // const removeOption = (option) => {
-  //   return selectedValue.filter((o) => o.value !== option.value);
-  // };
+  const removeOption = (option) => {
+    if (selectedValue && Array.isArray(selectedValue)) {
+      return selectedValue.filter((o) => o.value !== option.value);
+    } else {
+      return null
+    }
+  };
 
-  const onTagRemove = (e, option) => {
+  const onTagRemove = (e, option : SelectableOptions) => {
     e.stopPropagation();
-    // const newValue = removeOption(option);
-    // setSelectedValue(newValue);
-    // onChange(newValue);
-  };
-
-  const onItemClick = (option : SelectableOptions) => {
-    let newValue : SelectableOptions;
-    // if (isMulti) {
-    //   if (selectedValue.findIndex((o) => o.value === option.value) >= 0) {
-    //     newValue = removeOption(option);
-    //   } else {
-    //     newValue = [...selectedValue, option];
-    //   }
-    // } else {
-      newValue = option;
-    // }
+    const newValue = removeOption(option);
     setSelectedValue(newValue);
     onChange(newValue);
   };
 
-  const isSelected = (option) => {
-    // if (isMulti) {
-    //   return selectedValue.filter((o) => o.value === option.value).length > 0;
-    // }
+  const onItemClick = (option : SelectableOptions) => {
+    let newValue : SelectableOptions | SelectableOptions[] | null;
+    if (isMulti && Array.isArray(selectedValue)) {
+      if (selectedValue.findIndex((o) => o.value === option.value) >= 0) {
+        newValue = removeOption(option);
+      } else {
+        newValue = [...selectedValue, option];
+      }
+    } else {
+      newValue = option;
+    }
+    setSelectedValue(newValue);
+    onChange(newValue);
+  };
+
+  const isSelected = (option : SelectableOptions) => {
+    if (isMulti && Array.isArray(selectedValue)) {
+      return selectedValue.filter((o) => o.value === option.value).length > 0;
+    }
 
     if (!selectedValue) {
       return false;
     }
-
-    return selectedValue.value === option.value;
+    if (!isMulti && !Array.isArray(selectedValue)) {
+      return selectedValue.value === option.value;
+    }
   };
 
   const onSearch = (e) => {
