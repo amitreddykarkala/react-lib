@@ -1,6 +1,6 @@
 {
   "name": "@amitreddykarkala/react-lib",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Component libraries",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
